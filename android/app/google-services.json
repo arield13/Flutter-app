@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "301046921255",
+    "firebase_url": "https://turnet-e77aa.firebaseio.com",
+    "project_id": "turnet-e77aa",
+    "storage_bucket": "turnet-e77aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:301046921255:android:4294263c3a83e56a",
+        "android_client_info": {
+          "package_name": "com.turnet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "301046921255-h3u3vn7b1gmfegi0p1rfejdrejr24gta.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfdBu-J9PKtKjWsZ47PfSHDLciB-h3BWg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "301046921255-h3u3vn7b1gmfegi0p1rfejdrejr24gta.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
