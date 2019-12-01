@@ -65,7 +65,7 @@ class ClientsPageState extends State<ClientsPage> {
   }
 
   Future<ConfirmAction> _asyncConfirmDialog(BuildContext context, data) async {
-    var info = 'Desea solciitar una cita con: '+ data["fullname"]+'?';
+    var info = 'Desea solicitar una cita con: '+ data["fullname"]+'?';
     return showDialog<ConfirmAction>(
       context: context,
       barrierDismissible: false, // user must tap button for close dialog!
@@ -74,19 +74,29 @@ class ClientsPageState extends State<ClientsPage> {
           title: Text('Solicitar Cita!'),
           content:  Text(info),
           actions: <Widget>[
-            FlatButton(
-              child: const Text('CANCELAR'),
+            RaisedButton(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: EdgeInsets.all(12),
+              color: Colors.blueAccent,
+              child: Text('NO', style: TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).pop(ConfirmAction.CANCEL);
               },
             ),
-            FlatButton(
-              child: const Text('ACEPTAR'),
+            RaisedButton(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: EdgeInsets.all(12),
+              color: Colors.blueAccent,
+              child: Text('SI', style: TextStyle(color: Colors.white)),
               onPressed: () {
                 sendNontification(data);
                 Navigator.of(context).pop(ConfirmAction.ACCEPT);
               },
-            )
+            ),
           ],
         );
       },
@@ -152,10 +162,13 @@ class ClientsPageState extends State<ClientsPage> {
 
     http.post(NOTIFICATION, headers: headers, body: body).then((rta) async {
       // stop the modal progress HUD
+      var data = json.decode(rta.body);
+      print("Resul $data");
       setState(() {
         _saving = false;
       });
-      var data = json.decode(rta.body);
+
+
       _showDialog(data['message']);
     });
   }
@@ -268,7 +281,9 @@ class ClientsPageState extends State<ClientsPage> {
                   hintText: "Search...",
                 ),
               ),
-            ),inAsyncCall: _saving));
+            ),
+            inAsyncCall: _saving)
+    );
   }
 
   /*

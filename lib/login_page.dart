@@ -10,7 +10,9 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:turnet/view.dart';
 import 'package:turnet/recovery_page.dart';
 import 'package:turnet/new_user.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
+final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
 class LoginPage extends StatefulWidget {
   static String tag = 'login-page';
@@ -30,9 +32,11 @@ class _LoginPageState extends State<LoginPage> {
 
   String _username;
   String _password;
+  String _fcm_id;
 
   @override
   void initState() {
+    _getDeviceToken();
     super.initState();
   }
 
@@ -42,6 +46,11 @@ class _LoginPageState extends State<LoginPage> {
       return 'Debe ingresar su contraseña';
     }
     return null;
+  }
+
+  _getDeviceToken() async {
+    // Get the token for this device
+    _fcm_id = await _firebaseMessaging.getToken();
   }
 
   void _submit() {
@@ -70,14 +79,13 @@ class _LoginPageState extends State<LoginPage> {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': 'Bearer '+data_login['access_token']
           };
-          http.post(USER_DETAIL, headers: headers_user).then((rta) async {
+          http.post(USER_DETAIL+"/$_fcm_id", headers: headers_user).then((rta) async {
             if (rta.statusCode == 200 && rta.body.length > 0) {
               setState(() {
                 _isInAsyncCall = false;
               });
 
               List<dynamic> _listViewData = [];
-             // Map data = json.decode(rta.body);
               _listViewData = json.decode(rta.body);
 
               _isInvalidAsyncUser = true;

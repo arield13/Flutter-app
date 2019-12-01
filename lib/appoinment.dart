@@ -36,6 +36,7 @@ class AppoinmentPageState extends State<AppoinmentPage> {
 
   bool _saving = false;
   var user_type = 0;
+  var user_login = 0;
   var user_id = 0;
   String _fcm_id;
 
@@ -64,6 +65,7 @@ class AppoinmentPageState extends State<AppoinmentPage> {
 
     var type  = prefs.getInt('usertype') ?? 0;
     user_type = type;
+    user_login = type;
     user_type = user_type == 1 ? 2 : 1;
     user_id = prefs.getInt('id') ?? 0;
     setState(() {
@@ -71,6 +73,7 @@ class AppoinmentPageState extends State<AppoinmentPage> {
       _saving = true;
       user_type = user_type;
       user_id = user_id;
+      user_login = user_login;
     });
     var fullname = prefs.getString('fullname') ?? null;
     print("User fullname  $fullname");
@@ -80,6 +83,7 @@ class AppoinmentPageState extends State<AppoinmentPage> {
         setState(() {
           //Iterable list = json.decode(rta.body);
           _listViewData = json.decode(rta.body);
+
           items.addAll(_listViewData);
           _isInAsyncCall = false;
           _saving = false;
@@ -102,19 +106,29 @@ Future<ConfirmAction> _asyncConfirmDialog(BuildContext context, data) async {
         content: const Text(
             'This will reset your device to its default factory settings.'),
         actions: <Widget>[
-          FlatButton(
-            child: const Text('CANCELAR'),
+          RaisedButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            padding: EdgeInsets.all(12),
+            color: Colors.blueAccent,
+            child: Text('SI', style: TextStyle(color: Colors.white)),
             onPressed: () {
               Navigator.of(context).pop(ConfirmAction.CANCEL);
             },
           ),
-          FlatButton(
-            child: const Text('ACEPTAR'),
-            onPressed: () {
-              sendNontification(data);
-              Navigator.of(context).pop(ConfirmAction.ACCEPT);
-            },
-          )
+          RaisedButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            padding: EdgeInsets.all(12),
+            color: Colors.blueAccent,
+            child: Text('NO', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                sendNontification(data);
+                Navigator.of(context).pop(ConfirmAction.ACCEPT);
+              }
+          ),
         ],
       );
     },
@@ -262,7 +276,7 @@ Future<ConfirmAction> _asyncConfirmDialog(BuildContext context, data) async {
                   border: Border(bottom: BorderSide(color: Colors.white60)),
                 ),
                 child: ListTile(
-                  title: Text(items[index]['fullname']),
+                  title: Text(items[index]['fullname'] +(user_login == 1 ? '\n'+ items[index]['address']: '')),
                   subtitle:  Text(items[index]['appoinmentDate']),
                   leading: CircleAvatar(
                     child: (user_type == 2 ?
@@ -280,6 +294,7 @@ Future<ConfirmAction> _asyncConfirmDialog(BuildContext context, data) async {
                   ),
 
                   onTap: () {
+                    print(items[index]);
                     Navigator.push(
                       context,
                       MaterialPageRoute(

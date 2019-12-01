@@ -41,6 +41,7 @@ class ContactPage extends StatefulWidget {
 class ContactPageState extends State<ContactPage> {
   int _page = 0;
   int user_type = 0;
+  bool isBackButtonActivated = false;
 
   GlobalKey _bottomNavigationKey = GlobalKey();
 
@@ -49,17 +50,15 @@ class ContactPageState extends State<ContactPage> {
   final ClientsPage _clientsPage = new ClientsPage();
   final CommerceCalendar _commerceCalendar = new CommerceCalendar();
 
-
-
   Widget showPage = new AppoinmentPage();
 
-  Widget pageChose(int page){
-    switch(page){
+  Widget pageChose(int page) {
+    switch (page) {
       case 0:
         return _appoinmentPage;
         break;
       case 1:
-        return (user_type == 2 ?_clientsPage : _commerceCalendar);
+        return (user_type == 1 ? _clientsPage : _commerceCalendar);
         break;
       case 2:
         return _profilePage;
@@ -84,24 +83,43 @@ class ContactPageState extends State<ContactPage> {
   }
 
   Future<void> notification() async {
-
     _firebaseMessaging2.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print("Data $message");
-        AlertNotification.alert(context, message['data']['username'],
-           'Su cita fue programada para el '+ message['data']['appoinmenDate'], "Aceptar");
-        var json_data = {
-          "appoinmentDate":message['data']['appoinmenDate'],
-          "fullname":message['data']['username'],
-        };
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => NotificationDetail(detail: json_data)));
+        print("Result -> $message");
+        var option = (message['data']['topic'] != 'cc' &&
+                message['data']['topic'] != 'cn'
+            ? 1
+            : 2);
+
+        if (option == 1) {
+          AlertNotification.alert(
+              context,
+              message['data']['username'],
+              'Su cita fue programada para el ' +
+                  message['data']['appoinmenDate'],
+              "Aceptar");
+          var json_data = {
+            "appoinmentDate": message['data']['appoinmenDate'],
+            "fullname": message['data']['username'],
+            "appoinmentId": message['data']['appoinmentId'],
+          };
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      NotificationDetail(detail: json_data)));
+        } else {
+          AlertNotification.alert(
+              context,
+              message['data']['username'],
+              'Su cita para el ' +
+                  message['data']['appoinmenDate'] +
+                  ' fue cancelada por : ' +
+                  message['data']['username'],
+              "Aceptar");
+        }
       },
       onResume: (Map<String, dynamic> message) async {
-
-
         // TODO optional
       },
     );
@@ -139,45 +157,78 @@ class ContactPageState extends State<ContactPage> {
   }
 
   @override
+  didPopRoute() {
+    bool override;
+    if (isBackButtonActivated)
+      override = false;
+    else
+      override = true;
+    return new Future<bool>.value(override);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-     /* appBar: AppBar(
+    return WillPopScope(
+        child: Scaffold(
+          /* appBar: AppBar(
         title: Text("Turnet"),
         backgroundColor: Color.fromRGBO(239, 65, 3, 1),
         centerTitle: true,
       ),*/
 
-      body: Container(child: Center(
-        child: showPage,
-      ),
-        color: Colors.red,
-
-
-      ),
-      bottomNavigationBar: CurvedNavigationBar(
-        key: _bottomNavigationKey,
-        index: _page,
-        height: 50.0,
-        items: <Widget>[
-          Icon(Icons.list, size: 30, color: Colors.white),
-          Icon(Icons.explore, size: 30, color: Colors.white),
-          Icon(Icons.perm_identity,
-              size: 30, color: Colors.white),
-        ],
-        color: Color.fromRGBO(239, 65, 3, 1),
-        buttonBackgroundColor: Color.fromRGBO(239, 65, 3, 1),
-        backgroundColor: Colors.white,
-        animationCurve: Curves.easeInOut,
-        animationDuration: Duration(milliseconds: 200),
-        onTap: (int tabIndex) {
-          setState(() {
-            showPage = pageChose(tabIndex);
-          });
-        },
-      ),
-    );
+          body: Container(
+            child: Center(
+              child: showPage,
+            ),
+            color: Colors.red,
+          ),
+          bottomNavigationBar: CurvedNavigationBar(
+            key: _bottomNavigationKey,
+            index: _page,
+            height: 50.0,
+            items: <Widget>[
+              Icon(Icons.list, size: 30, color: Colors.white),
+              Icon(Icons.explore, size: 30, color: Colors.white),
+              Icon(Icons.perm_identity, size: 30, color: Colors.white),
+            ],
+            color: Color.fromRGBO(239, 65, 3, 1),
+            buttonBackgroundColor: Color.fromRGBO(239, 65, 3, 1),
+            backgroundColor: Colors.white,
+            animationCurve: Curves.easeInOut,
+            animationDuration: Duration(milliseconds: 200),
+            onTap: (int tabIndex) {
+              setState(() {
+                showPage = pageChose(tabIndex);
+              });
+            },
+          ),
+        ),
+        onWillPop: () => showDialog<bool>(
+              context: context,
+              builder: (c) => AlertDialog(
+                title: Text('Advertencia!'),
+                content: Text('Realmente quieres salir.'),
+                actions: [
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: EdgeInsets.all(12),
+                    color: Colors.blueAccent,
+                    child: Text('SI', style: TextStyle(color: Colors.white)),
+                    onPressed: () => Navigator.pop(c, true),
+                  ),
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: EdgeInsets.all(12),
+                    color: Colors.blueAccent,
+                    child: Text('NO', style: TextStyle(color: Colors.white)),
+                    onPressed: () => Navigator.pop(c, false),
+                  ),
+                ],
+              ),
+            ));
   }
-
 }
-
-

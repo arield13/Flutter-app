@@ -60,18 +60,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> notification() async {
 
     Timer(Duration(seconds: 1), () {
-
-
     _firebaseMessaging.configure(
       onLaunch : (Map<String, dynamic> message) async {
         var json_data = {
           "appoinmentDate":message['data']['appoinmenDate'],
           "fullname":message['data']['username'],
+          "appoinmentId": message['data']['appoinmentId'],
         };
+        var option = (message['data']['topic'] != 'cc' &&
+            message['data']['topic'] != 'cn' ? 1 : 2  );
+
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (BuildContext context) => NotificationDetail(detail: json_data)));
+                builder: (BuildContext context) => (option == 1 ? NotificationDetail(detail: json_data) : ViewPage() )));
       },
     );
     });
@@ -114,90 +116,3 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 }
-/*
-  int _counter = 0;
-  final routes = <String, WidgetBuilder>{
-    LoginPage.tag: (context) => LoginPage()
-  };
-  /// Get the token, save it to the database for current user
-  _saveDeviceToken() async {
-    // Get the current user
-    String uid = 'jeffd23';
-    // FirebaseUser user = await _auth.currentUser();
-
-    // Get the token for this device
-    String fcmToken = await _firebaseMessaging.getToken();
-    print("TockenArielin: $fcmToken");
-
-  }
-  @override
-  void initState() {
-   // _saveDeviceToken();
-
-    // ...
-
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            content: ListTile(
-              title: Text(message['notification']['title']),
-              subtitle: Text(message['notification']['body']),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Ok'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        );
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-        // TODO optional
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-        // TODO optional
-      },
-    );
-  }
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return new MaterialApp(
-      title: 'Flutter Bottom Navigation',
-      debugShowCheckedModeBanner: false,
-      theme: new ThemeData(
-        primaryColor: Colors.blue,
-        primaryColorDark: const Color(0xFF167F67),
-        accentColor: const Color(0xFFFFAD32),
-      ),
-      /*home: new DashboardScreen(
-        title: 'Farmatodo',
-      ),*/
-      home: LoginPage() ,
-      routes: routes,
-    );
-  }
-}
-*/

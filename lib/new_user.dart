@@ -40,6 +40,7 @@ class _RecoveryPageState extends State<NewUserPage> {
   String _fcm_id;
   String _user_img = "user.png";
   String _password;
+  String _address;
   String _repeat_password;
 
   //var value;
@@ -47,7 +48,7 @@ class _RecoveryPageState extends State<NewUserPage> {
 
   bool _isInvalidAsyncUser = false; // managed after response from server
 
-  _saveDeviceToken() async {
+  _getDeviceToken() async {
     // Get the current user
     String uid = 'jeffd23';
     // FirebaseUser user = await _auth.currentUser();
@@ -72,6 +73,18 @@ class _RecoveryPageState extends State<NewUserPage> {
     return null;
   }
 
+  String _validateAddress(String address) {
+    if (address.length == 0) {
+      return 'Debe ingresar la dirección del Negocio';
+    }
+    if (_isInvalidAsyncUser) {
+      // disable message until after next async call
+      _isInvalidAsyncUser = false;
+      return 'Dirección no encontrada!';
+    }
+
+    return null;
+  }
 // validate password
   String _validatePassword(String password) {
     if (password.length == 0) {
@@ -97,7 +110,6 @@ class _RecoveryPageState extends State<NewUserPage> {
   }
 
   void _submit() {
-    print("Por akaaaa.");
     if (_createUserFormKey.currentState.validate()) {
       _createUserFormKey.currentState.save();
       //print("Por iiiikaaaa. $_user_type");
@@ -118,19 +130,26 @@ class _RecoveryPageState extends State<NewUserPage> {
         "usertype": (_user_type == "Cliente" ? 1 : 2),
         "latitude": "243213421",
         "longitude": "2314313",
+        "address": _address,
         "fcm_id": _fcm_id,
         "user_img": _user_img
       });
 
       http.post(USER_CREATE, headers: headers, body: body).then((rta) async {
         if (rta.statusCode == 200 && rta.body.length > 0) {
-          AlertNotification.alert(context, "Aviso importante",
-              "Usuario creado exitosamente", "Aceptar");
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
-        }
 
-       // print("Por vvv akaaaajjj. $rta");
-        // stop the modal progress HUD
+          var result = json.decode(rta.body);
+          print("-- $result");
+          if(result['message'] == "NO"){
+            AlertNotification.alert(context, "Notificación.",
+                "Este correo ya existe.\nPor favor verifique o inicie sesion.", "Aceptar");
+          }else {
+            AlertNotification.alert(context, "Aviso importante",
+                "Usuario creado exitosamente", "Aceptar");
+            Navigator.pushReplacement(context, MaterialPageRoute(
+                builder: (BuildContext context) => LoginPage()));
+          }
+        }
         setState(() {
           _isInAsyncCall = false;
         });
@@ -140,7 +159,7 @@ class _RecoveryPageState extends State<NewUserPage> {
 
   @override
   void initState() {
-     _saveDeviceToken();
+    _getDeviceToken();
   }
 
   @override
@@ -346,6 +365,33 @@ class _RecoveryPageState extends State<NewUserPage> {
               onSaved: (value) => _repeat_password = value,
             ),
           ),
+          _user_type != "Cliente" ?
+          Container(
+            margin: EdgeInsets.only(left: 17, top: 5, right: 15, bottom: 15),
+            child: TextFormField(
+              autofocus: false,
+              initialValue: '',
+              obscureText: false,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                hintText: 'Dirección del negocio',
+                contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(32.0),
+                ),
+              ),
+              keyboardType: TextInputType.text, //Keyboard number
+              style: TextStyle(
+                  color: Color.fromARGB(255, 184, 184, 184),
+                  fontSize: 14,
+                  letterSpacing: 0.22,
+                  fontFamily: "Helvetica",
+                  height: 1.3),
+              validator: _validateAddress, //Validations field
+              onSaved: (value) => _address = value,
+            ),
+          ): Container(),
           Container(
             constraints: BoxConstraints.expand(height: 45),
             margin: EdgeInsets.only(left: 17, top: 5, right: 15, bottom: 17),

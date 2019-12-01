@@ -38,6 +38,15 @@ const String APPOINMENT_COMMERCE =
 const String NOTIFICATION =
     BASE_URL + "/clients/notification/token";
 
+const String NOTIFICATION_CANCEL =
+    BASE_URL + "/clients/appoinment/cancel";
+
+const String UPDATE_FCM =
+    BASE_URL +"/user/update_fcm";
+
+const String SCHEDULE =
+    BASE_URL + "/schedules/";
+
 const String USER_LOGIN =
     BASE_URL + "/oauth/token";
 
